@@ -17,6 +17,15 @@ public class StatementCalculator {
         return plays.get(perf.playID);
     }
 
+    private int calculateCredits(Performance perf, Map<String, Play> plays) {
+        int result = 0;
+        result = Math.max(perf.audience - 30, 0);
+        if ("comedy".equals(playFor(perf, plays).type)) {
+            result += Math.floorDiv(perf.audience, 5);
+        }
+        return result;
+    }
+
     public String statement(Invoice invoice, Map<String, Play> plays) {
         int totalAmount = 0;
         int volumeCredits = 0;
@@ -26,11 +35,7 @@ public class StatementCalculator {
 
         for (Performance perf : invoice.performances) {
             int thisAmount = calculateFor(perf, plays);
-
-            volumeCredits += Math.max(perf.audience - 30, 0);
-            if ("comedy".equals(playFor(perf, plays).type)) {
-                volumeCredits += Math.floorDiv(perf.audience, 5);
-            }
+            volumeCredits += calculateCredits(perf, plays);
 
             result.append(
                     String.format(
