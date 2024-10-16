@@ -13,6 +13,10 @@ import java.util.Map;
 
 public class StatementCalculator {
 
+    private Play playFor(Performance perf, Map<String, Play> plays) {
+        return plays.get(perf.playID);
+    }
+
     public String statement(Invoice invoice, Map<String, Play> plays) {
         int totalAmount = 0;
         int volumeCredits = 0;
@@ -21,19 +25,17 @@ public class StatementCalculator {
         NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
 
         for (Performance perf : invoice.performances) {
-            Play play = plays.get(perf.playID);
-
-            int thisAmount = calculateFor(perf, play);
+            int thisAmount = calculateFor(perf, plays);
 
             volumeCredits += Math.max(perf.audience - 30, 0);
-            if ("comedy".equals(play.type)) {
+            if ("comedy".equals(playFor(perf, plays).type)) {
                 volumeCredits += Math.floorDiv(perf.audience, 5);
             }
 
             result.append(
                     String.format(
                             " %s: %s (%d seats)\n",
-                            play.name,
+                            playFor(perf, plays).name,
                             format.format(thisAmount / 100.0),
                             perf.audience));
             totalAmount += thisAmount;
@@ -44,10 +46,10 @@ public class StatementCalculator {
         return result.toString();
     }
 
-    private int calculateFor (Performance perf, Play play) {
+    private int calculateFor (Performance perf, Map<String, Play> plays) {
         int thisAmount = 0;
 
-        switch (play.type) {
+        switch (playFor(perf, plays).type) {
             case "tragedy":
                 thisAmount = 40000;
                 if (perf.audience > 30) {
@@ -62,7 +64,7 @@ public class StatementCalculator {
                 thisAmount += 300 * perf.audience;
                 break;
             default:
-                throw new RuntimeException("unknown type: " + play.type);
+                throw new RuntimeException("unknown type: " + playFor(perf, plays).type);
         }
         return thisAmount;
     }
