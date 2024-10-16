@@ -26,12 +26,14 @@ public class StatementCalculator {
         return result;
     }
 
+    private NumberFormat numberFormatFor() {
+        return NumberFormat.getNumberInstance(Locale.US);
+    }
+
     public String statement(Invoice invoice, Map<String, Play> plays) {
         int totalAmount = 0;
         int volumeCredits = 0;
         StringBuilder result = new StringBuilder("Statement for " + invoice.customer + "\n");
-
-        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.US);
 
         for (Performance perf : invoice.performances) {
             int thisAmount = calculateFor(perf, plays);
@@ -41,12 +43,12 @@ public class StatementCalculator {
                     String.format(
                             " %s: %s (%d seats)\n",
                             playFor(perf, plays).name,
-                            format.format(thisAmount / 100.0),
+                            numberFormatFor().format(thisAmount / 100.0),
                             perf.audience));
             totalAmount += thisAmount;
         }
 
-        result.append("Amount owed is " + format.format(totalAmount / 100.0) + "\n");
+        result.append("Amount owed is " + numberFormatFor().format(totalAmount / 100.0) + "\n");
         result.append("You earned " + volumeCredits + " credits\n");
         return result.toString();
     }
