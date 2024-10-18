@@ -38,25 +38,25 @@ public class StatementCalculator {
         return volumeCredits;
     }
 
-    public String statement(Invoice invoice, Map<String, Play> plays) {
-        StringBuilder result = new StringBuilder("Statement for " + invoice.customer + "\n");
-
-        for (Performance perf : invoice.performances) {
-            result.append(
-                    String.format(
-                            " %s: %s (%d seats)\n",
-                            playFor(perf, plays).name,
-                            numberFormatFor().format(calculateFor(perf, plays) / 100.0),
-                            perf.audience));
-        }
-
+    private int calTotalAmount(Map<String, Play> plays, Invoice invoice) {
         int totalAmount = 0;
         for (Performance perf : invoice.performances) {
             int thisAmount = calculateFor(perf, plays);
             totalAmount += thisAmount;
         }
+        return totalAmount;
+    }
 
-        result.append("Amount owed is " + numberFormatFor().format(totalAmount / 100.0) + "\n");
+    public String statement(Invoice invoice, Map<String, Play> plays) {
+        StringBuilder result = new StringBuilder("Statement for " + invoice.customer + "\n");
+
+        for (Performance perf : invoice.performances) {
+            result.append(String.format(" %s: %s (%d seats)\n", playFor(perf, plays).name,
+                            numberFormatFor().format(calculateFor(perf, plays) / 100.0),
+                            perf.audience));
+        }
+
+        result.append("Amount owed is " + numberFormatFor().format(calTotalAmount(plays, invoice) / 100.0) + "\n");
         result.append("You earned " + calVolumeCredits(plays, invoice) + " credits\n");
         return result.toString();
     }
