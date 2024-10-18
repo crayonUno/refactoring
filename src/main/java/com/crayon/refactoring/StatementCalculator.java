@@ -39,18 +39,20 @@ public class StatementCalculator {
     }
 
     public String statement(Invoice invoice, Map<String, Play> plays) {
-        int totalAmount = 0;
         StringBuilder result = new StringBuilder("Statement for " + invoice.customer + "\n");
 
         for (Performance perf : invoice.performances) {
-            int thisAmount = calculateFor(perf, plays);
-
             result.append(
                     String.format(
                             " %s: %s (%d seats)\n",
                             playFor(perf, plays).name,
-                            numberFormatFor().format(thisAmount / 100.0),
+                            numberFormatFor().format(calculateFor(perf, plays) / 100.0),
                             perf.audience));
+        }
+
+        int totalAmount = 0;
+        for (Performance perf : invoice.performances) {
+            int thisAmount = calculateFor(perf, plays);
             totalAmount += thisAmount;
         }
 
