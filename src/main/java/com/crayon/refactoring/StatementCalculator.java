@@ -30,6 +30,14 @@ public class StatementCalculator {
         return NumberFormat.getNumberInstance(Locale.US);
     }
 
+    private int calVolumeCredits(Map<String, Play> plays, Invoice invoice) {
+        int volumeCredits = 0;
+        for (Performance perf : invoice.performances) {
+            volumeCredits += calculateCredits(perf, plays);
+        }
+        return volumeCredits;
+    }
+
     public String statement(Invoice invoice, Map<String, Play> plays) {
         int totalAmount = 0;
         StringBuilder result = new StringBuilder("Statement for " + invoice.customer + "\n");
@@ -46,13 +54,8 @@ public class StatementCalculator {
             totalAmount += thisAmount;
         }
 
-        int volumeCredits = 0;
-        for (Performance perf : invoice.performances) {
-            volumeCredits += calculateCredits(perf, plays);
-        }
-
         result.append("Amount owed is " + numberFormatFor().format(totalAmount / 100.0) + "\n");
-        result.append("You earned " + volumeCredits + " credits\n");
+        result.append("You earned " + calVolumeCredits(plays, invoice) + " credits\n");
         return result.toString();
     }
 
