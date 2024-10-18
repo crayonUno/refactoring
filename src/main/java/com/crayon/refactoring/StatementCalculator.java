@@ -32,12 +32,10 @@ public class StatementCalculator {
 
     public String statement(Invoice invoice, Map<String, Play> plays) {
         int totalAmount = 0;
-        int volumeCredits = 0;
         StringBuilder result = new StringBuilder("Statement for " + invoice.customer + "\n");
 
         for (Performance perf : invoice.performances) {
             int thisAmount = calculateFor(perf, plays);
-            volumeCredits += calculateCredits(perf, plays);
 
             result.append(
                     String.format(
@@ -46,6 +44,11 @@ public class StatementCalculator {
                             numberFormatFor().format(thisAmount / 100.0),
                             perf.audience));
             totalAmount += thisAmount;
+        }
+
+        int volumeCredits = 0;
+        for (Performance perf : invoice.performances) {
+            volumeCredits += calculateCredits(perf, plays);
         }
 
         result.append("Amount owed is " + numberFormatFor().format(totalAmount / 100.0) + "\n");
